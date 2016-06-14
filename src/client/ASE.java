@@ -1,9 +1,13 @@
-package weight;
+package client;
 
+import java.io.BufferedReader;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.util.InputMismatchException;
 import java.util.Scanner;
 
-import client.RaavareMethod;
-import client.loginMethods;
 import data.daoimpl.SQLOperatoerDAO;
 import data.daoimpl.SQLProduktBatchDAO;
 import data.daoimpl.SQLRaavareBatchDAO;
@@ -15,16 +19,21 @@ import data.dto.ProduktBatchKomponentDTO;
 import data.dto.RaavareBatchDTO;
 
 
-public class Weight{
+public class ASE{
 
 	static double brutto=0;
 	static double tara = 0;
 	static String inline;
 	static String indtDisp ="";
-	static String extraDisp ="";
+	static int portdst = 8000;
+	static int portnumber;
+	static Socket sock;
+	static BufferedReader instream;
+	static ServerSocket listener;
+	static DataOutputStream outstream;
 	static int batchNumber;
 	static int id;
-	static int nextRaavare;
+	static int nextRaavare;;
 
 	static boolean loop1 = true;
 	static boolean loop2 = true;
@@ -34,11 +43,23 @@ public class Weight{
 
 	static Scanner sc = new Scanner(System.in);
 
-	public static void main(String[]args){
+	public static void main(String argv[]) throws IOException{
 
 		//This allows you to change the desired port the program will run on. 
 		//It will be changed when launching the program through cmd: java -jar *NameOfFile*.jar *DesiredPort (>1024)* 
-
+		if(argv.length > 0){			
+			try{		
+				int foo = 0;		
+				foo = Integer.parseInt(argv[0]);		
+				if(foo> 1024 ){		
+					portnumber = foo;		
+					System.out.println(argv[0]);		
+				}		
+			}	catch(InputMismatchException e){		
+				System.out.println(e);		
+			}		
+		}	
+		
 		SQLOperatoerDAO odao = new SQLOperatoerDAO();
 		SQLProduktBatchDAO pbdao = new SQLProduktBatchDAO();
 		SQLReceptDAO receptdao = new SQLReceptDAO();
@@ -48,6 +69,10 @@ public class Weight{
 		loginMethods lm = new loginMethods(odao);	
 		RaavareMethod rm = new RaavareMethod();
 		
+		boolean weightConnection = false;
+		
+		
+		boolean loggedIn = false;
 		while (!loggedIn){
 			id = -1;
 			String password = null;
@@ -68,15 +93,10 @@ public class Weight{
 			}else{
 				loggedIn = true;
 				indtDisp = "Velkommen";
-				try {
-					extraDisp = odao.getOperatoer(id).getOprNavn();
-				} catch (DALException e) {
-					e.printStackTrace();
 				}
-			}
 		}
 
-		boolean loggedIn = false;
+		
 
 		System.out.println("Log in to use the weight");
 
