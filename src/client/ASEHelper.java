@@ -2,18 +2,12 @@ package client;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Scanner;
-
 import data.daoimpl.SQLProduktBatchDAO;
-import data.daoimpl.SQLRaavareBatchDAO;
 import data.daointerface.DALException;
 
-public class RaavareMethod {
+public class ASEHelper {
 
 	SQLProduktBatchDAO pbdao = new SQLProduktBatchDAO();
-	SQLRaavareBatchDAO rdao = new SQLRaavareBatchDAO();
-
-
 
 	public int getNextRaavare(int batchNumber){
 
@@ -41,29 +35,9 @@ public class RaavareMethod {
 		}
 		for(int i = 0; i<rvNeeded.size(); i++){
 			if(rvNeeded.get(i) == 0){
-				System.out.println(rvMax.get(i));
 				return rvMax.get(i);
 			}
 		}
 		return -1;
 	}
-
-	public int measureMethod(Scanner sc, int raavareID){
-		int raavareBatch;
-		try{
-			raavareBatch = Integer.parseInt(sc.nextLine());
-		}catch(NumberFormatException e){
-			raavareBatch = -1;
-		}
-
-		try {
-			if(rdao.getRaavareBatch(raavareBatch).getRaavareId()!=raavareID){
-				raavareBatch = -2;
-			}
-		} catch (DALException e) {
-			raavareBatch = -3;
-		}
-		return raavareBatch;
-	}
-
 }

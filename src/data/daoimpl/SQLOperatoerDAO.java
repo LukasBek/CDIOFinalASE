@@ -38,25 +38,4 @@ public class SQLOperatoerDAO implements OperatoerDAO {
 			throw new DALException(e);
 		}
 	}
-
-	
-	public List<OperatoerDTO> getOperatoerList() throws DALException {
-		List<OperatoerDTO> list = new ArrayList<OperatoerDTO>();
-		ResultSet rs = connector.doQuery("SELECT * FROM operatoer");
-		try{
-			while (rs.next()){
-				OperatoerDTO opDTO = new OperatoerDTO();
-				opDTO.setOprId(rs.getInt("opr_id"));				
-				opDTO.setOprNavn(rs.getString("opr_navn"));
-				opDTO.setIni(rs.getString("ini"));
-				opDTO.setCpr(rs.getString("cpr"));
-				opDTO.setPassword(rs.getString("password"));
-				opDTO.setAdminStatus(rs.getInt("admin"));
-				list.add(opDTO);
-			}
-		} catch(SQLException e){
-			throw new DALException(e);
-		}
-		return list;
-	}
 }

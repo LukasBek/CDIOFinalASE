@@ -1,14 +1,5 @@
 package client;
 
-import java.io.BufferedReader;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.net.UnknownHostException;
-
 import data.daoimpl.SQLOperatoerDAO;
 import data.daoimpl.SQLProduktBatchDAO;
 import data.daoimpl.SQLRaavareBatchDAO;
@@ -27,6 +18,7 @@ public class ASEController {
 	int rvBatch;
 	int nextRaavare;
 	int receptID;
+	int id;
 	double tara;
 	double netto;
 	double brutto;
@@ -45,38 +37,55 @@ public class ASEController {
 	SQLRaavareBatchDAO rbdao = new SQLRaavareBatchDAO();
 	SQLOperatoerDAO odao = new SQLOperatoerDAO();
 
-	RaavareMethod rm = new RaavareMethod();
+	ASEHelper rm = new ASEHelper();
 	MettlerController mc;
 
 	public ASEController(int portnumber){
-		System.out.println("ASE1");
 		mc = new MettlerController(portnumber);
 	}
 
 	public void run(){
 
 		try{
-			System.out.println("ASE2");
-			int id;
-			id = (int) mc.sendRM("Indtast ID");
-			System.out.println("ASE3");
+			try{
+				id = (int) mc.sendRM("Indtast ID");
+				if(id < 1){
+					wrongLogin();
+				}
+			}catch(ClassCastException e){
+				wrongLogin();
+			}
 
 			toWeight = odao.getOperatoer(id).getOprNavn();
-
 			mc.sendRM(toWeight + " Bekræft identitet ved at trykke ok");
 
+			boolean checkpbBatch = true;
+			try{		
+				pbBatch = (int) mc.sendRM("Indtast batchnummer");
+				if (pbBatch < 1){
+					checkpbBatch = false;
+				}
+			}catch(ClassCastException e){
+				checkpbBatch = false;
+			}
 			boolean batchCheck = true;
-
 			while(batchCheck){
-				try {
-					pbBatch = (int) mc.sendRM("Indtast batchnummer");
-				} catch (NumberFormatException nfe){
-					continue;
+				while(!(checkpbBatch)){
+					try {
+						pbBatch = (int) mc.sendRM("Produkbatchen er enten færdig, ikke eksisterende, eller du har lavet en forkert indtastning. Prøv igen");
+						if(pbBatch < 1){
+							continue;
+						}else{
+							checkpbBatch = true;
+						}
+					} catch (ClassCastException cce){
+						continue;
+					}
 				}
 
 				nextRaavare = rm.getNextRaavare(pbBatch);
 				if(nextRaavare == -1){
-					System.out.println("Dette produktbatch er allerede færdigt eller eksisterer ikke");
+					checkpbBatch = false;
 					continue;
 				}else{
 					receptName = receptdao.getRecept(pbdao.getProduktBatch(pbBatch).getReceptId()).getReceptName();
@@ -86,46 +95,75 @@ public class ASEController {
 				}
 			}
 
-			ProduktBatchDTO pb = new ProduktBatchDTO();
-			pb = pbdao.getProduktBatch(pbBatch);
-			pb.setStatus(1);
-			pbdao.updateProduktBatch(pb);
-
-			mc.sendRM("Tjek at vægten er ubelastet, fortsæt med 'ok'");
-			mc.tara();
-
-			tara = mc.sendRM("Sæt en tarabeholder på vægten");
-			mc.sendWeight(tara);
-			mc.tara();
-
-			raavareName = raavaredao.getRaavare(nextRaavare).getrName();
-			rvBatch = (int)mc.sendRM("Indtast raavarebatchnummer for " + raavareName + ", med id: " + nextRaavare);
-
-			boolean correctRVBatch = false;
-			while(!correctRVBatch){
-				if(rbdao.getRaavareBatch(rvBatch).getRaavareId() != nextRaavare){
-					rvBatch = (int)mc.sendRM("Forkert raavarebatch, indtast nyt");
-				}else {
-					correctRVBatch = true;
+			boolean produktbatchLoop = true;
+			while(produktbatchLoop){
+				nextRaavare = rm.getNextRaavare(pbBatch);
+				if(nextRaavare == -1){
+					break;
 				}
-			}
 
-			receptID = pbdao.getProduktBatch(pbBatch).getReceptId();
-			raavareNom = receptdao.getReceptKomp(receptID, nextRaavare).getNom_netto();
-			raavareTol = receptdao.getReceptKomp(receptID, nextRaavare).getTolerance();
-			netto = mc.sendRM("Sæt "+ raavareNom + "kg " + raavareName + " på vægten. Må kun have en tolerance på " + raavareTol);
+				ProduktBatchDTO pb = new ProduktBatchDTO();
+				pb = pbdao.getProduktBatch(pbBatch);
+				pb.setStatus(1);
+				pbdao.updateProduktBatch(pb);
+				mc.sendRM("Tjek at vægten er ubelastet, fortsæt med 'ok'");
+				mc.tara();
+				boolean checkTara = false;
+				tara = mc.sendRM("Sæt en tarabeholder på vægten");
+				if (tara < 0){
+					checkTara = true;
+				}
+				while(checkTara){
+					tara = mc.sendRM("Sæt venligst en rigtig tarabeholder på vægten");
+					if(tara > 0){
+						checkTara = false;
+					}
+				}
+				mc.sendWeight(tara);
+				mc.tara();
 
-			boolean bruttoInput = true;
-			boolean bruttoCheck = true;
-			while(bruttoInput){
-				if(netto < 0){
-					netto = mc.sendRM("Ikke et korrekt input. Sæt "+ raavareNom + "kg " + raavareName + " på vægten. Må kun have en tolerance på " + raavareTol);
-				}else{
-					mc.sendWeight(netto);
-					netto = mc.meassure();
-					while(bruttoCheck){
+				raavareName = raavaredao.getRaavare(nextRaavare).getrName();
+
+				boolean checkrvBatch = false;
+				try{
+					rvBatch = (int)mc.sendRM("Indtast raavarebatchnummer for " + raavareName + ", med id: " + nextRaavare);
+					if(rvBatch < 1){
+						checkrvBatch = true;
+					}
+				}catch(ClassCastException e){
+					checkrvBatch = true;
+				}
+
+				while(checkrvBatch){
+					try{
+						rvBatch = (int) mc.sendRM("Indtast venligst et korrekt rvBatchNummer");
+						if(rvBatch > 0){
+							checkrvBatch = false;
+						}
+						if(rbdao.getRaavareBatch(rvBatch).getRaavareId() != nextRaavare){
+							checkrvBatch = true;
+						}
+					}catch(ClassCastException e){
+						continue;
+					}
+				}
+
+				receptID = pbdao.getProduktBatch(pbBatch).getReceptId();
+				raavareNom = receptdao.getReceptKomp(receptID, nextRaavare).getNom_netto();
+				raavareTol = receptdao.getReceptKomp(receptID, nextRaavare).getTolerance();
+
+				netto = mc.sendRM("Sæt "+ raavareNom + "kg " + raavareName + " på vægten. Må kun have en tolerance på " + raavareTol);
+
+				boolean bruttoInput = true;
+
+				while(bruttoInput){
+					if(netto < 0){
+						netto = mc.sendRM("Forkert input. Sæt "+ raavareNom + "kg " + raavareName + " på vægten. Må kun have en tolerance på " + raavareTol);
+					}else{
+						mc.sendWeight(netto);
+						netto = mc.meassure();
+
 						if (netto <= raavareNom+raavareTol && netto >= raavareNom-raavareTol){
-
 							ProduktBatchKomponentDTO pbkDTO = new ProduktBatchKomponentDTO();
 							pbkDTO.setPbId(pbBatch);
 							pbkDTO.setRbId(rvBatch);
@@ -143,29 +181,31 @@ public class ASEController {
 							rbdao.updateRaavareBatch(rbDTO);
 							System.out.println("fratrukket raavarekomponent");
 							bruttoInput = false;
-							bruttoCheck = false;
-							
+
 							mc.sendWeight(0 - (netto + tara));
 							mc.tara();
-						}else{
-							brutto = mc.sendRM("Udenfor tolerance. Sæt "+ raavareNom + "kg " + raavareName + " på vægten. Må kun have en tolerance på " + raavareTol);
+
 						}
 					}
 				}
 			}
-
-
-
 		}catch(DALException e){
 			e.printStackTrace();
 		}
-
-
-		System.out.println("Tjek at vaegten er ubelastet");
-		boolean checked = false;
-
-
-
 	}
 
+	private void wrongLogin() {
+		boolean loggedIn = false;
+		while(!loggedIn){
+			try{
+				id = (int) mc.sendRM("Forkert indtastning, prøv igen");
+				if(id < 1){
+					continue;
+				}
+			}catch(ClassCastException e2){
+				continue;
+			}
+			loggedIn = false;
+		}
+	}
 }
