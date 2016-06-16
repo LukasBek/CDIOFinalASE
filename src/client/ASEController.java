@@ -99,6 +99,10 @@ public class ASEController {
 			while(produktbatchLoop){
 				nextRaavare = rm.getNextRaavare(pbBatch);
 				if(nextRaavare == -1){
+					ProduktBatchDTO pb = new ProduktBatchDTO();
+					pb = pbdao.getProduktBatch(pbBatch);
+					pb.setStatus(2);
+					pbdao.updateProduktBatch(pb);
 					break;
 				}
 
@@ -159,7 +163,9 @@ public class ASEController {
 
 				boolean bruttoInput = true;
 				while(bruttoInput){
+					System.out.println("netto: " + netto);
 					if(netto < 0){
+						mc.sendWeight(0 - (netto));
 						netto = mc.sendRM("Forkert input. Sæt "+ raavareNom + "kg " + raavareName + " på vægten. Må kun have en tolerance på " + raavareTol);
 						continue;
 					}else{
@@ -187,8 +193,9 @@ public class ASEController {
 
 							mc.sendWeight(0 - (netto + tara));
 							mc.tara();
-
+							mc.sendRM("Produktafvejning registreret!");
 						}else{
+							mc.sendWeight(0 - (netto));
 							netto = mc.sendRM("Forkert input. Sæt "+ raavareNom + "kg " + raavareName + " på vægten. Må kun have en tolerance på " + raavareTol);
 						}
 					}
