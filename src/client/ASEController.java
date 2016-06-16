@@ -163,7 +163,6 @@ public class ASEController {
 
 				boolean bruttoInput = true;
 				while(bruttoInput){
-					System.out.println("netto: " + netto);
 					if(netto < 0){
 						mc.sendWeight(0 - (netto));
 						netto = mc.sendRM("Forkert input. Sæt "+ raavareNom + "kg " + raavareName + " på vægten. Må kun have en tolerance på " + raavareTol);
@@ -178,7 +177,7 @@ public class ASEController {
 							pbkDTO.setRbId(rvBatch);
 							pbkDTO.setOprId(id);
 							pbkDTO.setTara(tara);
-							pbkDTO.setNetto(brutto-tara);
+							pbkDTO.setNetto(netto);
 							pbdao.createProduktBatchKomponent(pbkDTO);
 
 							System.out.println("Tilføjet pbkomponent");
@@ -186,7 +185,7 @@ public class ASEController {
 							RaavareBatchDTO rbDTO = new RaavareBatchDTO();
 							rbDTO = rbdao.getRaavareBatch(rvBatch);
 							amount = rbDTO.getMaengde();
-							rbDTO.setMaengde(amount-brutto);
+							rbDTO.setMaengde(amount-netto);
 							rbdao.updateRaavareBatch(rbDTO);
 							System.out.println("fratrukket raavarekomponent");
 							bruttoInput = false;
