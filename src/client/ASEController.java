@@ -89,7 +89,7 @@ public class ASEController {
 					continue;
 				}else{
 					receptName = receptdao.getRecept(pbdao.getProduktBatch(pbBatch).getReceptId()).getReceptName();
-					toWeight = "Recept: " + receptName + " fortsæt med 'ok";
+					toWeight = "Recept: " + receptName + " fortsæt med 'ok'";
 					mc.sendRM(toWeight);
 					batchCheck = false;
 				}
@@ -136,7 +136,7 @@ public class ASEController {
 
 				while(checkrvBatch){
 					try{
-						rvBatch = (int) mc.sendRM("Indtast venligst et korrekt rvBatchNummer");
+						rvBatch = (int) mc.sendRM("Indtast venligst et korrekt raavarebatchnummer");
 						if(rvBatch > 0){
 							checkrvBatch = false;
 						}
@@ -144,7 +144,6 @@ public class ASEController {
 							checkrvBatch = true;
 						}
 					}catch(ClassCastException e){
-						continue;
 					}
 				}
 
@@ -155,7 +154,6 @@ public class ASEController {
 				netto = mc.sendRM("Sæt "+ raavareNom + "kg " + raavareName + " på vægten. Må kun have en tolerance på " + raavareTol);
 
 				boolean bruttoInput = true;
-
 				while(bruttoInput){
 					if(netto < 0){
 						netto = mc.sendRM("Forkert input. Sæt "+ raavareNom + "kg " + raavareName + " på vægten. Må kun have en tolerance på " + raavareTol);
