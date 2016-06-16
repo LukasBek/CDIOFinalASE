@@ -8,16 +8,16 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 
 public class MettlerController {
-	
+
 	String fromWeight;
 	String error = "Kunne ikke modtage besked fra vaegten";
 	double returnValue;
-	
+
 	Socket clientSocket = null;		
 	BufferedReader inFromUser = null;		
 	PrintWriter outToServer = null;		
 	BufferedReader inFromServer = null;
-	
+
 	public MettlerController(int portnumber){
 		try{		
 			clientSocket = new Socket("localhost", portnumber);
@@ -30,7 +30,7 @@ public class MettlerController {
 			System.out.println("Kunne ikke oprette forbindelse til vaegten");		
 		}
 	}
-	
+
 	public double sendRM(String message){
 		returnValue = 0;
 		outToServer.println("RM " + message);
@@ -40,14 +40,16 @@ public class MettlerController {
 			fromWeight = inFromServer.readLine();
 			System.out.println(fromWeight);
 			returnValue = Double.parseDouble(fromWeight.substring(6));
-		} catch (IOException e) {
-			e.printStackTrace();
-			return 0;
-		} catch (NullPointerException npe, NumberFormatException nfe){
-					}
+		} catch (IOException e1) {
+			e1.printStackTrace();
+			return -1;
+		} catch (NullPointerException | NumberFormatException e2){
+			e2.printStackTrace();
+			return -2;
+		}
 		return returnValue;
 	}
-	
+
 	public String displayMessage(String message){
 		outToServer.println("D " +message);
 		try {

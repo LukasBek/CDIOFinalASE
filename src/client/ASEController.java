@@ -63,6 +63,8 @@ public class ASEController {
 		
 		
 		
+		
+		
 		boolean batchCheck = true;
 		int nextRaavare;
 		while(batchCheck){
