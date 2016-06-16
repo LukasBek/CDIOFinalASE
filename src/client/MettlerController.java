@@ -32,28 +32,24 @@ public class MettlerController {
 	}
 
 	public double sendRM(String message){
-		System.out.println("MC1");
 		returnValue = 0;
 		outToServer.println("RM " + message);
 		outToServer.flush();
-		System.out.println("MC2");
 		try {
 			fromWeight = inFromServer.readLine();
-			System.out.println("MC3");
-			System.out.println(fromWeight);
 			fromWeight = inFromServer.readLine();
-			System.out.println(fromWeight);
 			returnValue = Double.parseDouble(fromWeight.substring(6));
 		} catch (IOException e1) {
-			return -1;
+			e1.printStackTrace();
 		} catch (NullPointerException | NumberFormatException e2){
-			return -2;
+			return -1;
 		}
 		return returnValue;
 	}
 
 	public String displayMessage(String message){
 		outToServer.println("D " +message);
+		outToServer.flush();
 		try {
 			fromWeight = inFromServer.readLine();
 		} catch (IOException e) {
@@ -67,10 +63,10 @@ public class MettlerController {
 
 	public double tara(){
 		outToServer.println("T");
+		outToServer.flush();
 		try {
 			fromWeight = inFromServer.readLine();
-			System.out.println(fromWeight);
-			returnValue = Double.parseDouble(fromWeight.substring(5));		
+			returnValue = Double.parseDouble(fromWeight.substring(4));		
 		} catch (IOException e) {
 			return -1;
 		}
@@ -78,7 +74,8 @@ public class MettlerController {
 	}
 
 	public void sendWeight(double weight){
-		outToServer.println(weight);
+		outToServer.println("B " + weight);
+		outToServer.flush();
 		try {
 			fromWeight = inFromServer.readLine();
 		} catch (IOException e) {
@@ -86,19 +83,22 @@ public class MettlerController {
 		}
 	}
 
-	public String meassure(){
-		outToServer.println("");
+	public double meassure(){
+		outToServer.println("S");
+		outToServer.flush();
 		try {
 			fromWeight = inFromServer.readLine();
-			System.out.println(fromWeight);
+			returnValue = Double.parseDouble(fromWeight.substring(4));
+			System.out.println("Her er afvejde S værdi: " + returnValue);
 		} catch (IOException e) {
-			return error;
+			return -1;
 		}
-		return fromWeight;
+		return returnValue;
 	}
 
 	public void shutdown(){
 		outToServer.println("Q");
+		outToServer.flush();
 	}
 
 }
