@@ -22,6 +22,7 @@ public class ASEController {
 	int portdst = 8000;
 	int portnumber;
 	int batchNumber;
+	int nextRaavare;
 	double tara;
 	String fromWeight;
 	String toWeight;
@@ -56,7 +57,7 @@ public class ASEController {
 		mc.sendRM(toWeight + " Bekræft identitet ved at trykke ok");
 		
 		boolean batchCheck = true;
-		int nextRaavare;
+		
 		while(batchCheck){
 			try {
 				batchNumber = (int) mc.sendRM("Indtast batchnummer");
@@ -90,10 +91,16 @@ public class ASEController {
 		
 		mc.sendRM("Tjek at vægten er ubelastet, fortsæt med 'ok'");
 		mc.tara();
-		
-		tara = mc.sendRM("Indtast raavarebatchnummer for " + raavaredao.getRaavare(nextRaavare).getrName() + ", med id: " + nextRaavare);
-		mc.sendWeight(tara);
-		mc.tara();
+//		
+//		tara = 
+//		
+//		try {
+//			 = mc.sendRM("Indtast raavarebatchnummer for " + raavaredao.getRaavare(nextRaavare).getrName() + ", med id: " + nextRaavare);
+//		} catch (DALException e) {
+//			e.printStackTrace();
+//		}
+//		mc.sendWeight(tara);
+//		mc.tara();
 		
 //		mc.sendRM("")
 		
