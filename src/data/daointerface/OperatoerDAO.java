@@ -1,7 +1,5 @@
 package data.daointerface;
 
-import java.util.List;
-
 import data.dto.OperatoerDTO;
 
 public interface OperatoerDAO {

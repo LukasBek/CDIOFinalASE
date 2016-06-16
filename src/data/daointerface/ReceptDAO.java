@@ -1,7 +1,5 @@
 package data.daointerface;
 
-import java.util.List;
-
 import data.daointerface.DALException;
 import data.dto.ReceptKomponentDTO;
 import data.dto.ReceptDTO;

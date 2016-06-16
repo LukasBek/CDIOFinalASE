@@ -2,8 +2,6 @@ package data.daoimpl;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
 
 import data.daointerface.DALException;
 import data.daointerface.ReceptDAO;
