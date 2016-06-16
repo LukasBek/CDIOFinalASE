@@ -32,19 +32,21 @@ public class MettlerController {
 	}
 
 	public double sendRM(String message){
+		System.out.println("MC1");
 		returnValue = 0;
 		outToServer.println("RM " + message);
+		outToServer.flush();
+		System.out.println("MC2");
 		try {
 			fromWeight = inFromServer.readLine();
+			System.out.println("MC3");
 			System.out.println(fromWeight);
 			fromWeight = inFromServer.readLine();
 			System.out.println(fromWeight);
 			returnValue = Double.parseDouble(fromWeight.substring(6));
 		} catch (IOException e1) {
-			e1.printStackTrace();
 			return -1;
 		} catch (NullPointerException | NumberFormatException e2){
-			e2.printStackTrace();
 			return -2;
 		}
 		return returnValue;
@@ -63,26 +65,25 @@ public class MettlerController {
 		return null;
 	}
 
-	public String tara(){
+	public double tara(){
 		outToServer.println("T");
 		try {
 			fromWeight = inFromServer.readLine();
 			System.out.println(fromWeight);
+			returnValue = Double.parseDouble(fromWeight.substring(5));		
 		} catch (IOException e) {
-			return error;
+			return -1;
 		}
-		return fromWeight;
+		return returnValue;
 	}
 
-	public String sendWeight(String message){
-		outToServer.println(message);
+	public void sendWeight(double weight){
+		outToServer.println(weight);
 		try {
 			fromWeight = inFromServer.readLine();
-			System.out.println(fromWeight);
 		} catch (IOException e) {
-			return error;
+			e.printStackTrace();
 		}
-		return fromWeight;
 	}
 
 	public String meassure(){

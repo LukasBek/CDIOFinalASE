@@ -13,7 +13,7 @@ public class Main{
 	static String indtDisp ="";
 	static String toWeight;
 
-	static int portnumber;
+	static int portnumber = 8000;
 	static int batchNumber;
 	static int nextRaavare;;
 
@@ -41,12 +41,13 @@ public class Main{
 				System.out.println(e);		
 			}		
 		}	
-	
+		System.out.println("MAIN1");
 		ASEController aseC = new ASEController(portnumber);
 	
 		try{
 			boolean run = true;
 			while(run){		
+				System.out.println("MAIN2");
 				aseC.run();
 			}
 

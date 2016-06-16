@@ -22,20 +22,11 @@ public class ASEController {
 	int portdst = 8000;
 	int portnumber;
 	int batchNumber;
+	double tara;
 	String fromWeight;
 	String toWeight;
 	String fromUser;
 	String error = "Kunne ikke modtage besked fra vaegten";
-
-	private Socket sock;
-	private BufferedReader instream;
-	private ServerSocket listener;
-	private DataOutputStream outstream;
-
-	Socket clientSocket = null;		
-	BufferedReader inFromUser = null;		
-	PrintWriter outToServer = null;		
-	BufferedReader inFromServer = null;
 
 	SQLProduktBatchDAO pbdao = new SQLProduktBatchDAO();
 	SQLReceptDAO receptdao = new SQLReceptDAO();
@@ -47,37 +38,29 @@ public class ASEController {
 	MettlerController mc;
 
 	public ASEController(int portnumber){
+		System.out.println("ASE1");
 		mc = new MettlerController(portnumber);
 	}
 
 	public void run(){
 
+		System.out.println("ASE2");
 		int id;
 		id = (int) mc.sendRM("Indtast ID");
+		System.out.println("ASE3");
 		try {
 			toWeight = odao.getOperatoer(id).getOprNavn();
 		} catch (DALException e1) {
 			e1.printStackTrace();
 		}
-		mc.sendRM(toWeight + "Bekræft identitet ved at trykke ok");
-		
-		
-		
-		
+		mc.sendRM(toWeight + " Bekræft identitet ved at trykke ok");
 		
 		boolean batchCheck = true;
 		int nextRaavare;
 		while(batchCheck){
 			try {
-				System.out.print("Batchnummer: ");
-				toWeight = inFromUser.readLine();
-				batchNumber = Integer.parseInt(toWeight);
-			} catch (IOException ioe) {
-				System.out.println("Fejl i læsning, 1");
-				ioe.printStackTrace();
-				continue;
+				batchNumber = (int) mc.sendRM("Indtast batchnummer");
 			} catch (NumberFormatException nfe){
-				System.out.println("Indtastede er ikke et batchnummer");
 				continue;
 			}
 
@@ -87,13 +70,34 @@ public class ASEController {
 				continue;
 			}else{
 				try {
-					toWeight = "Recept der skal produceres: " + receptdao.getRecept(pbdao.getProduktBatch(batchNumber).getReceptId()).getReceptName();
+					toWeight = "Recept: " + receptdao.getRecept(pbdao.getProduktBatch(batchNumber).getReceptId()).getReceptName() + " fortsæt med 'ok";
+					mc.sendRM(toWeight);
+					batchCheck = false;
 				} catch (DALException e) {
 					e.printStackTrace();
 				}
-				mc.displayMessage(toWeight);
 			}
 		}
+		
+		try {
+		ProduktBatchDTO pb = new ProduktBatchDTO();
+		pb = pbdao.getProduktBatch(batchNumber);
+		pb.setStatus(1);
+			pbdao.updateProduktBatch(pb);
+		} catch (DALException e) {
+			e.printStackTrace();
+		}
+		
+		mc.sendRM("Tjek at vægten er ubelastet, fortsæt med 'ok'");
+		mc.tara();
+		
+		tara = mc.sendRM("Indtast raavarebatchnummer for " + raavaredao.getRaavare(nextRaavare).getrName() + ", med id: " + nextRaavare);
+		mc.sendWeight(tara);
+		mc.tara();
+		
+//		mc.sendRM("")
+		
+		
 
 		System.out.println("Tjek at vaegten er ubelastet");
 		boolean checked = false;
