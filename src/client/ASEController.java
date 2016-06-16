@@ -155,8 +155,9 @@ public class ASEController {
 
 				boolean bruttoInput = true;
 				while(bruttoInput){
+					netto = mc.sendRM("Forkert input. Sæt "+ raavareNom + "kg " + raavareName + " på vægten. Må kun have en tolerance på " + raavareTol);
 					if(netto < 0){
-						netto = mc.sendRM("Forkert input. Sæt "+ raavareNom + "kg " + raavareName + " på vægten. Må kun have en tolerance på " + raavareTol);
+						continue;
 					}else{
 						mc.sendWeight(netto);
 						netto = mc.meassure();
