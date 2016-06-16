@@ -41,13 +41,11 @@ public class Main{
 				System.out.println(e);		
 			}		
 		}	
-		System.out.println("MAIN1");
 		ASEController aseC = new ASEController(portnumber);
 	
 		try{
 			boolean run = true;
 			while(run){		
-				System.out.println("MAIN2");
 				aseC.run();
 			}
 

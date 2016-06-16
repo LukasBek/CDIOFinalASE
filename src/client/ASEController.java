@@ -205,7 +205,7 @@ public class ASEController {
 			}catch(ClassCastException e2){
 				continue;
 			}
-			loggedIn = false;
+			loggedIn = true;
 		}
 	}
 }
