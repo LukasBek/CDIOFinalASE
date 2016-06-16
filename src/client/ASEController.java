@@ -127,23 +127,23 @@ public class ASEController {
 				boolean checkrvBatch = false;
 				try{
 					rvBatch = (int)mc.sendRM("Indtast raavarebatchnummer for " + raavareName + ", med id: " + nextRaavare);
-					if(rvBatch < 1){
+				}catch(ClassCastException e){
+					if(rvBatch < 1 ){	
+						checkrvBatch = true;
+					}if(rbdao.getRaavareBatch(rvBatch).getRaavareId() != nextRaavare){
 						checkrvBatch = true;
 					}
-				}catch(ClassCastException e){
-					checkrvBatch = true;
 				}
-
 				while(checkrvBatch){
 					try{
-						rvBatch = (int) mc.sendRM("Indtast venligst et korrekt raavarebatchnummer");
-						if(rvBatch > 0){
-							checkrvBatch = false;
-						}
-						if(rbdao.getRaavareBatch(rvBatch).getRaavareId() != nextRaavare){
-							checkrvBatch = true;
+						rvBatch = (int)mc.sendRM("Venligst indtast et korrekt raavarebatchnummer for " + raavareName + ", med id: " + nextRaavare);
+						if(rvBatch > 0 ){
+							if(rbdao.getRaavareBatch(rvBatch).getRaavareId() != nextRaavare){
+								checkrvBatch = false;
+							}
 						}
 					}catch(ClassCastException e){
+						
 					}
 				}
 
