@@ -127,23 +127,27 @@ public class ASEController {
 				boolean checkrvBatch = false;
 				try{
 					rvBatch = (int)mc.sendRM("Indtast raavarebatchnummer for " + raavareName + ", med id: " + nextRaavare);
-				}catch(ClassCastException e){
 					if(rvBatch < 1 ){	
 						checkrvBatch = true;
-					}if(rbdao.getRaavareBatch(rvBatch).getRaavareId() != nextRaavare){
+					}else if(rbdao.getRaavareBatch(rvBatch).getRaavareId() != nextRaavare){
 						checkrvBatch = true;
 					}
+				}catch(ClassCastException e){
+					checkrvBatch = true;
 				}
 				while(checkrvBatch){
 					try{
 						rvBatch = (int)mc.sendRM("Venligst indtast et korrekt raavarebatchnummer for " + raavareName + ", med id: " + nextRaavare);
 						if(rvBatch > 0 ){
-							if(rbdao.getRaavareBatch(rvBatch).getRaavareId() != nextRaavare){
-								checkrvBatch = false;
+							try{
+								if(rbdao.getRaavareBatch(rvBatch).getRaavareId() == nextRaavare){
+									checkrvBatch = false;
+								}
+							}catch(DALException e){
 							}
 						}
 					}catch(ClassCastException e){
-						
+
 					}
 				}
 
@@ -155,8 +159,8 @@ public class ASEController {
 
 				boolean bruttoInput = true;
 				while(bruttoInput){
-					netto = mc.sendRM("Forkert input. Sæt "+ raavareNom + "kg " + raavareName + " på vægten. Må kun have en tolerance på " + raavareTol);
 					if(netto < 0){
+						netto = mc.sendRM("Forkert input. Sæt "+ raavareNom + "kg " + raavareName + " på vægten. Må kun have en tolerance på " + raavareTol);
 						continue;
 					}else{
 						mc.sendWeight(netto);
@@ -184,6 +188,8 @@ public class ASEController {
 							mc.sendWeight(0 - (netto + tara));
 							mc.tara();
 
+						}else{
+							netto = mc.sendRM("Forkert input. Sæt "+ raavareNom + "kg " + raavareName + " på vægten. Må kun have en tolerance på " + raavareTol);
 						}
 					}
 				}
