@@ -20,7 +20,7 @@ public class MettlerController {
 
 	public MettlerController(int portnumber){
 		try{		
-			clientSocket = new Socket("169.254.2.2", portnumber);
+			clientSocket = new Socket("localhost", portnumber);
 			inFromUser = new BufferedReader( new InputStreamReader(System.in));
 			inFromServer = new BufferedReader(new InputStreamReader (clientSocket.getInputStream()));		
 			outToServer = new PrintWriter(clientSocket.getOutputStream());		
